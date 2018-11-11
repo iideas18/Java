@@ -1,12 +1,16 @@
- package java.util.concurrent.locks;
-import java.util.concurrent.TimeUnit;
-import java.util.Collection;
- public class ReentrantLock implements Lock, java.io.Serializable {
-    private static final long serialVersionUID = 7373984872572414699L;
+  package java.util.concurrent.locks;
+
+  import java.util.concurrent.TimeUnit;
+  import java.util.Collection;
+
+  public class ReentrantLock implements Lock, java.io.Serializable {
+     private static final long serialVersionUID = 7373984872572414699L;
      private final Sync sync;
      abstract static class Sync extends AbstractQueuedSynchronizer {
+
         private static final long serialVersionUID = -5179523762034025860L;
          abstract void lock();
+
          final boolean nonfairTryAcquire(int acquires) {
             final Thread current = Thread.currentThread();
             int c = getState();
@@ -37,15 +41,15 @@ import java.util.Collection;
             setState(c);
             return free;
         }
+
          protected final boolean isHeldExclusively() {
-            // While we must in general read state before owner,
-            // we don't need to do so to check if current thread is owner
             return getExclusiveOwnerThread() == Thread.currentThread();
         }
+
          final ConditionObject newCondition() {
             return new ConditionObject();
         }
-         // Methods relayed from outer class
+
          final Thread getOwner() {
             return getState() == 0 ? null : getExclusiveOwnerThread();
         }
@@ -55,6 +59,7 @@ import java.util.Collection;
          final boolean isLocked() {
             return getState() != 0;
         }
+
          private void readObject(java.io.ObjectInputStream s)
                 throws java.io.IOException, ClassNotFoundException {
             s.defaultReadObject();
@@ -113,8 +118,7 @@ import java.util.Collection;
      public boolean tryLock() {
         return sync.nonfairTryAcquire(1);
     }
-     public boolean tryLock(long timeout, TimeUnit unit)
-            throws InterruptedException {
+     public boolean tryLock(long timeout, TimeUnit unit) throws InterruptedException {
         return sync.tryAcquireNanos(1, unit.toNanos(timeout));
     }
      public void unlock() {
