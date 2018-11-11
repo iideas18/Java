@@ -7,10 +7,7 @@ import sun.misc.Unsafe;
  public abstract class AbstractQueuedSynchronizer extends AbstractOwnableSynchronizer implements java.io.Serializable {
      private static final long serialVersionUID = 7373984972572414691L;
      static final long spinForTimeoutThreshold = 1000L;
-
-
      protected AbstractQueuedSynchronizer() { }
-
      private transient volatile Node head;
      private transient volatile Node tail;
 
@@ -18,14 +15,14 @@ import sun.misc.Unsafe;
      protected final int getState() { return state; }
      protected final void setState(int newState) { state = newState; }
 
-     // Main exported methods
+      // Main exported methods
      protected boolean tryAcquire(int arg) { throw new UnsupportedOperationException(); }
      protected boolean tryRelease(int arg) { throw new UnsupportedOperationException(); }
      protected int tryAcquireShared(int arg) { throw new UnsupportedOperationException(); }
      protected boolean tryReleaseShared(int arg) { throw new UnsupportedOperationException(); }
      protected boolean isHeldExclusively() { throw new UnsupportedOperationException(); }
 
-     private static final Unsafe unsafe = Unsafe.getUnsafe();
+      private static final Unsafe unsafe = Unsafe.getUnsafe();
      private static final long stateOffset;
      private static final long headOffset;
      private static final long tailOffset;
@@ -40,7 +37,6 @@ import sun.misc.Unsafe;
              nextOffset       = unsafe.objectFieldOffset(Node.class.getDeclaredField("next"));
          } catch (Exception ex) { throw new Error(ex); }
      }
-
      static final class Node {
          static final Node SHARED = new Node();
          static final Node EXCLUSIVE = null;
@@ -71,8 +67,6 @@ import sun.misc.Unsafe;
             this.thread = thread;
         }
     }
-
-
      protected final boolean compareAndSetState(int expect, int update) {
         // See below for intrinsics setup to support this
         return unsafe.compareAndSwapInt(this, stateOffset, expect, update);
@@ -81,7 +75,6 @@ import sun.misc.Unsafe;
      private final boolean compareAndSetTail(Node expect, Node update) { return unsafe.compareAndSwapObject(this, tailOffset, expect, update); }
      private static final boolean compareAndSetWaitStatus(Node node, int expect, int update) { return unsafe.compareAndSwapInt(node, waitStatusOffset, expect, update); }
      private static final boolean compareAndSetNext(Node node, Node expect, Node update) { return unsafe.compareAndSwapObject(node, nextOffset, expect, update); }
-
      private Node enq(final Node node) {
         for (;;) {
             Node t = tail;
@@ -238,8 +231,7 @@ import sun.misc.Unsafe;
                 cancelAcquire(node);
         }
     }
-     private void doAcquireInterruptibly(int arg)
-            throws InterruptedException {
+     private void doAcquireInterruptibly(int arg) throws InterruptedException {
         final Node node = addWaiter(Node.EXCLUSIVE);
         boolean failed = true;
         try {
@@ -260,8 +252,7 @@ import sun.misc.Unsafe;
                 cancelAcquire(node);
         }
     }
-     private boolean doAcquireNanos(int arg, long nanosTimeout)
-            throws InterruptedException {
+     private boolean doAcquireNanos(int arg, long nanosTimeout) throws InterruptedException {
         if (nanosTimeout <= 0L)
             return false;
         final long deadline = System.nanoTime() + nanosTimeout;
@@ -317,8 +308,7 @@ import sun.misc.Unsafe;
                 cancelAcquire(node);
         }
     }
-     private void doAcquireSharedInterruptibly(int arg)
-            throws InterruptedException {
+     private void doAcquireSharedInterruptibly(int arg) throws InterruptedException {
         final Node node = addWaiter(Node.SHARED);
         boolean failed = true;
         try {
@@ -342,8 +332,7 @@ import sun.misc.Unsafe;
                 cancelAcquire(node);
         }
     }
-     private boolean doAcquireSharedNanos(int arg, long nanosTimeout)
-            throws InterruptedException {
+     private boolean doAcquireSharedNanos(int arg, long nanosTimeout) throws InterruptedException {
         if (nanosTimeout <= 0L)
             return false;
         final long deadline = System.nanoTime() + nanosTimeout;
@@ -376,53 +365,49 @@ import sun.misc.Unsafe;
         }
     }
 
-
+     //模板方法
      public final void acquire(int arg) {
         if (!tryAcquire(arg) &&
                 acquireQueued(addWaiter(Node.EXCLUSIVE), arg))
             selfInterrupt();
     }
-     public final void acquireInterruptibly(int arg)
-            throws InterruptedException {
+     public final void acquireInterruptibly(int arg) throws InterruptedException {
         if (Thread.interrupted())
             throw new InterruptedException();
         if (!tryAcquire(arg))
             doAcquireInterruptibly(arg);
     }
-     public final boolean tryAcquireNanos(int arg, long nanosTimeout)
-            throws InterruptedException {
+     public final boolean tryAcquireNanos(int arg, long nanosTimeout) throws InterruptedException {
         if (Thread.interrupted())
             throw new InterruptedException();
         return tryAcquire(arg) ||
                 doAcquireNanos(arg, nanosTimeout);
     }
-     public final boolean release(int arg) {
-        if (tryRelease(arg)) {
-            Node h = head;
-            if (h != null && h.waitStatus != 0)
-                unparkSuccessor(h);
-            return true;
-        }
-        return false;
-    }
      public final void acquireShared(int arg) {
         if (tryAcquireShared(arg) < 0)
             doAcquireShared(arg);
     }
-     public final void acquireSharedInterruptibly(int arg)
-            throws InterruptedException {
+     public final void acquireSharedInterruptibly(int arg) throws InterruptedException {
         if (Thread.interrupted())
             throw new InterruptedException();
         if (tryAcquireShared(arg) < 0)
             doAcquireSharedInterruptibly(arg);
     }
-     public final boolean tryAcquireSharedNanos(int arg, long nanosTimeout)
-            throws InterruptedException {
+     public final boolean tryAcquireSharedNanos(int arg, long nanosTimeout) throws InterruptedException {
         if (Thread.interrupted())
             throw new InterruptedException();
         return tryAcquireShared(arg) >= 0 ||
                 doAcquireSharedNanos(arg, nanosTimeout);
     }
+     public final boolean release(int arg) {
+         if (tryRelease(arg)) {
+             Node h = head;
+             if (h != null && h.waitStatus != 0)
+                 unparkSuccessor(h);
+             return true;
+         }
+         return false;
+     }
      public final boolean releaseShared(int arg) {
         if (tryReleaseShared(arg)) {
             doReleaseShared();
@@ -430,7 +415,8 @@ import sun.misc.Unsafe;
         }
         return false;
     }
-     // Queue inspection methods
+
+      // Queue inspection methods
      public final boolean hasQueuedThreads() {
         return head != tail;
     }
@@ -524,12 +510,7 @@ import sun.misc.Unsafe;
         }
         return list;
     }
-     public String toString() {
-        int s = getState();
-        String q  = hasQueuedThreads() ? "non" : "";
-        return super.toString() +
-                "[State = " + s + ", " + q + "empty queue]";
-    }
+
      // Internal support methods for Conditions
      final boolean isOnSyncQueue(Node node) {
         if (node.waitStatus == Node.CONDITION || node.prev == null)
@@ -836,4 +817,10 @@ import sun.misc.Unsafe;
         }
     }
 
-    }
+     public String toString() {
+         int s = getState();
+         String q  = hasQueuedThreads() ? "non" : "";
+         return super.toString() +
+                 "[State = " + s + ", " + q + "empty queue]";
+     }
+     }

@@ -1,13 +1,14 @@
-  package java.util.concurrent.locks;
-   import java.util.concurrent.TimeUnit;
-  import java.util.Collection;
-   public class ReentrantLock implements Lock, java.io.Serializable {
-     private static final long serialVersionUID = 7373984872572414699L;
-     private final Sync sync;
+package java.util.concurrent.locks;
+ import java.util.concurrent.TimeUnit;
+import java.util.Collection;
+ public class ReentrantLock implements Lock, java.io.Serializable {
+    private static final long serialVersionUID = 7373984872572414699L;
+    private final Sync sync;
      abstract static class Sync extends AbstractQueuedSynchronizer {
-         private static final long serialVersionUID = -5179523762034025860L;
+        private static final long serialVersionUID = -5179523762034025860L;
+
          abstract void lock();
-          final boolean nonfairTryAcquire(int acquires) {
+         final boolean nonfairTryAcquire(int acquires) {
             final Thread current = Thread.currentThread();
             int c = getState();
             if (c == 0) {
@@ -15,8 +16,7 @@
                     setExclusiveOwnerThread(current);
                     return true;
                 }
-            }
-            else if (current == getExclusiveOwnerThread()) {
+            } else if (current == getExclusiveOwnerThread()) {
                 int nextc = c + acquires;
                 if (nextc < 0) // overflow
                     throw new Error("Maximum lock count exceeded");
@@ -37,22 +37,12 @@
             setState(c);
             return free;
         }
-          protected final boolean isHeldExclusively() {
-            return getExclusiveOwnerThread() == Thread.currentThread();
-        }
-          final ConditionObject newCondition() {
-            return new ConditionObject();
-        }
-          final Thread getOwner() {
-            return getState() == 0 ? null : getExclusiveOwnerThread();
-        }
-         final int getHoldCount() {
-            return isHeldExclusively() ? getState() : 0;
-        }
-         final boolean isLocked() {
-            return getState() != 0;
-        }
-          private void readObject(java.io.ObjectInputStream s)
+         protected final boolean isHeldExclusively() { return getExclusiveOwnerThread() == Thread.currentThread(); }
+         final ConditionObject newCondition() { return new ConditionObject(); }
+         final Thread getOwner() { return getState() == 0 ? null : getExclusiveOwnerThread(); }
+         final int getHoldCount() { return isHeldExclusively() ? getState() : 0; }
+         final boolean isLocked() { return getState() != 0; }
+         private void readObject(java.io.ObjectInputStream s)
                 throws java.io.IOException, ClassNotFoundException {
             s.defaultReadObject();
             setState(0); // reset to unlocked state
@@ -84,8 +74,7 @@
                     setExclusiveOwnerThread(current);
                     return true;
                 }
-            }
-            else if (current == getExclusiveOwnerThread()) {
+            } else if (current == getExclusiveOwnerThread()) {
                 int nextc = c + acquires;
                 if (nextc < 0)
                     throw new Error("Maximum lock count exceeded");
@@ -95,78 +84,53 @@
             return false;
         }
     }
-     public ReentrantLock() {
-        sync = new NonfairSync();
-    }
-     public ReentrantLock(boolean fair) {
-        sync = fair ? new FairSync() : new NonfairSync();
-    }
-     public void lock() {
-        sync.lock();
-    }
-     public void lockInterruptibly() throws InterruptedException {
-        sync.acquireInterruptibly(1);
-    }
-     public boolean tryLock() {
-        return sync.nonfairTryAcquire(1);
-    }
-     public boolean tryLock(long timeout, TimeUnit unit) throws InterruptedException {
-        return sync.tryAcquireNanos(1, unit.toNanos(timeout));
-    }
-     public void unlock() {
-        sync.release(1);
-    }
-     public Condition newCondition() {
-        return sync.newCondition();
-    }
-     public int getHoldCount() {
-        return sync.getHoldCount();
-    }
-     public boolean isHeldByCurrentThread() {
-        return sync.isHeldExclusively();
-    }
-     public boolean isLocked() {
-        return sync.isLocked();
-    }
-     public final boolean isFair() {
-        return sync instanceof FairSync;
-    }
-     protected Thread getOwner() {
-        return sync.getOwner();
-    }
-     public final boolean hasQueuedThreads() {
-        return sync.hasQueuedThreads();
-    }
-     public final boolean hasQueuedThread(Thread thread) {
-        return sync.isQueued(thread);
-    }
-     public final int getQueueLength() {
-        return sync.getQueueLength();
-    }
-     protected Collection<Thread> getQueuedThreads() {
-        return sync.getQueuedThreads();
-    }
+
+     //构造函数
+     public ReentrantLock() { sync = new NonfairSync(); }
+     public ReentrantLock(boolean fair) { sync = fair ? new FairSync() : new NonfairSync(); }
+
+     //实现Lock接口的方法
+     public void lock() { sync.lock(); }
+     public void lockInterruptibly() throws InterruptedException { sync.acquireInterruptibly(1); }
+     public boolean tryLock() { return sync.nonfairTryAcquire(1); }
+     public boolean tryLock(long timeout, TimeUnit unit) throws InterruptedException { return sync.tryAcquireNanos(1, unit.toNanos(timeout)); }
+     public void unlock() { sync.release(1); }
+     public Condition newCondition() { return sync.newCondition(); }
+
+     //属性函数
+     public int getHoldCount() { return sync.getHoldCount(); }
+     public boolean isHeldByCurrentThread() { return sync.isHeldExclusively(); }
+     public boolean isLocked() { return sync.isLocked(); }
+     public final boolean isFair() { return sync instanceof FairSync; }
+     protected Thread getOwner() { return sync.getOwner(); }
+
+     public final boolean hasQueuedThreads() { return sync.hasQueuedThreads(); }
+     public final boolean hasQueuedThread(Thread thread) { return sync.isQueued(thread); }
+     public final int getQueueLength() { return sync.getQueueLength(); }
+     protected Collection<Thread> getQueuedThreads() { return sync.getQueuedThreads(); }
+
      public boolean hasWaiters(Condition condition) {
         if (condition == null)
             throw new NullPointerException();
         if (!(condition instanceof AbstractQueuedSynchronizer.ConditionObject))
             throw new IllegalArgumentException("not owner");
-        return sync.hasWaiters((AbstractQueuedSynchronizer.ConditionObject)condition);
+        return sync.hasWaiters((AbstractQueuedSynchronizer.ConditionObject) condition);
     }
      public int getWaitQueueLength(Condition condition) {
         if (condition == null)
             throw new NullPointerException();
         if (!(condition instanceof AbstractQueuedSynchronizer.ConditionObject))
             throw new IllegalArgumentException("not owner");
-        return sync.getWaitQueueLength((AbstractQueuedSynchronizer.ConditionObject)condition);
+        return sync.getWaitQueueLength((AbstractQueuedSynchronizer.ConditionObject) condition);
     }
      protected Collection<Thread> getWaitingThreads(Condition condition) {
         if (condition == null)
             throw new NullPointerException();
         if (!(condition instanceof AbstractQueuedSynchronizer.ConditionObject))
             throw new IllegalArgumentException("not owner");
-        return sync.getWaitingThreads((AbstractQueuedSynchronizer.ConditionObject)condition);
+        return sync.getWaitingThreads((AbstractQueuedSynchronizer.ConditionObject) condition);
     }
+
      public String toString() {
         Thread o = sync.getOwner();
         return super.toString() + ((o == null) ?
