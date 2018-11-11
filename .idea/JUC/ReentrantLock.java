@@ -4,7 +4,8 @@ import java.util.Collection;
  public class ReentrantLock implements Lock, java.io.Serializable {
     private static final long serialVersionUID = 7373984872572414699L;
     private final Sync sync;
-     abstract static class Sync extends AbstractQueuedSynchronizer {
+
+    abstract static class Sync extends AbstractQueuedSynchronizer {
         private static final long serialVersionUID = -5179523762034025860L;
 
          abstract void lock();
@@ -56,9 +57,7 @@ import java.util.Collection;
             else
                 acquire(1);
         }
-         protected final boolean tryAcquire(int acquires) {
-            return nonfairTryAcquire(acquires);
-        }
+         protected final boolean tryAcquire(int acquires) { return nonfairTryAcquire(acquires); }
     }
      static final class FairSync extends Sync {
         private static final long serialVersionUID = -3000897897090466540L;
