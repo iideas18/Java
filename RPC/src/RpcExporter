@@ -8,11 +8,11 @@ import java.net.Socket;
 import java.util.concurrent.Executors;
 
 //ObjectInputStream 对象输入流，可以将序列化过的对象反序列化到内存中，对应的还有个ObjectOutputStream 可以将一个对象序列化到本地！
-public class RpcExporter {
+class RpcExporter {
 
     static Executors executors = (Executors) Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
-    public static void exporter( String hostName, int port ) throws Exception {
+    static void exporter(String hostName, int port) throws Exception {
         ServerSocket server = new ServerSocket();
         server.bind( new InetSocketAddress( hostName, port ) );
     }
@@ -29,9 +29,7 @@ public class RpcExporter {
         public void run() {
             ObjectInputStream input = null;
             ObjectOutputStream output = null;
-
             try {
-
                 input = new ObjectInputStream( client.getInputStream() );
                 String interfaceName = input.readUTF();
                 Class<?> service = Class.forName( interfaceName );

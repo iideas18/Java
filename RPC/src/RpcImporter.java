@@ -5,12 +5,14 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.util.*;
-public class RpcImporter<S> {
-    public S importer ( final Class<?> serviceClass ,final InetSocketAddress addr ) {
-        return (S) Proxy.newProxyInstance(serviceClass.getClassLoader(), new Class<?>[] { serviceClass.getInterfaces()[0] },
-                new InvocationHandler() {
 
+class RpcImporter<S> {
+    S importer(final Class<?> serviceClass, final InetSocketAddress addr) {
+
+        return (S) Proxy.newProxyInstance(
+                serviceClass.getClassLoader(),
+                new Class<?>[] { serviceClass.getInterfaces()[0] },
+                new InvocationHandler() {
                     @Override
                     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
                         Socket socket = null;
