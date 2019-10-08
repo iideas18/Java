@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/RPC/RPC.iml" filepath="$PROJECT_DIR$/RPC/RPC.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Socket_learning/Socket_learning.iml" filepath="$PROJECT_DIR$/Socket_learning/Socket_learning.iml" />
     </modules>
   </component>
 </project>
