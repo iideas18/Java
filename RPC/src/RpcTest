@@ -1,0 +1,20 @@
+import java.util.*;
+public class RpcTest {
+    public static void main(String[] args) {
+        //用于接受PRC客户端的请求
+        new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    RpcExporter.exporter("127.0.0.1", 8080);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+        RpcImporter<EchoService> importer = new RpcImporter< EchoService >();
+        EchoService echo = importer.importer( EchoServiceImpl.class, new InetSocketAddress("127.0.0.1", 8080) );
+        System.out.println( echo.echo("Are you OK?") );
+    }
+}

@@ -1,0 +1,65 @@
+import java.util.*;
+//ObjectInputStream 对象输入流，可以将序列化过的对象反序列化到内存中，对应的还有个ObjectOutputStream 可以将一个对象序列化到本地！
+public class RpcExporter {
+
+    static Executors executors = (Executors) Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
+    public static void exporter( String hostName, int port ) throws Exception {
+        ServerSocket server = new ServerSocket();
+        server.bind( new InetSocketAddress( hostName, port ) );
+    }
+
+    private static class ExporterTask implements Runnable {
+
+        Socket client = null;
+
+        public ExporterTask ( Socket client ) {
+            this.client = client;
+        }
+
+        @Override
+        public void run() {
+            ObjectInputStream input = null;
+            ObjectOutputStream output = null;
+
+            try {
+
+                input = new ObjectInputStream( client.getInputStream() );
+                String interfaceName = input.readUTF();
+                Class<?> service = Class.forName( interfaceName );
+                String methodName = input.readUTF();
+                Class< ? > parameterTypes = (Class<?>) input.readObject();
+                Object[] arguments = (Object[]) input.readObject();
+                Method method = service.getMethod(methodName, parameterTypes);
+                Object result = method.invoke( service.newInstance() , arguments );
+                output = new ObjectOutputStream( client.getOutputStream() );
+                output.writeObject( result );
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                if( output != null ) {
+                    try {
+                        output.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                if( input != null ) {
+                    try {
+                        input.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                if( client != null ) {
+                    try {
+                        client.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
+}
